@@ -37,6 +37,5 @@ async fn main() -> AppResult<()> {
     }
     // TODO: Reset the terminal if the app has been terminated
     tui.exit();
-    print!("am iesit");
     Ok(())
 }
