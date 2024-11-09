@@ -8,13 +8,15 @@ pub type AppResult<T> = Result<T, Box<dyn error::Error>>;
 pub struct App {
     /// Is the application running?
     pub running: bool,
+    pub tick_rate: u64,
 }
 
 impl App {
     /// Constructs a new instance of [`App`].
-    pub fn new() -> Self {
+    pub fn new(tick_rate: u64) -> Self {
         Self {
-            running: true
+            running: true,
+            tick_rate
         }
     }
 }
