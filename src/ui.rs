@@ -1,7 +1,11 @@
-use std::rc::Rc;
+use std::{rc::Rc};
 
 use ratatui::{layout::{Constraint, Direction, Layout, Rect}, style::{Color, Style, Stylize}, symbols::line::TOP_RIGHT, text::{Line, Span}, widgets::{block::title, Block, BorderType, Borders, Paragraph}, Frame};
 use crate::app::App;
+
+fn generate_temp_string(temp: &i32){
+
+}
 
 fn render_app_title(frame: &mut Frame, chunk: Rect){
     let app_title_block = Paragraph::new("Rusty Weather")
@@ -10,7 +14,7 @@ fn render_app_title(frame: &mut Frame, chunk: Rect){
     .block(Block::default().borders(Borders::ALL));
     frame.render_widget(app_title_block, chunk);
 }
-fn render_weather_info(frame: &mut Frame, chunk: Rect){
+fn render_weather_info(frame: &mut Frame, cityName: &str, chunk: Rect){
     let chunks = Layout::default()
     .direction(Direction::Vertical)
     .constraints([
@@ -21,7 +25,7 @@ fn render_weather_info(frame: &mut Frame, chunk: Rect){
     ])
     .split(chunk);
 
-    let city_name_block = Paragraph::new("\nBucharest")
+    let city_name_block = Paragraph::new(cityName)
             .style(Style::default().fg(Color::White))
             .alignment(ratatui::layout::Alignment::Center)
             .block(Block::default().borders(Borders::LEFT | Borders::RIGHT));
@@ -108,8 +112,11 @@ pub fn render(app: &mut App, frame: &mut Frame) {
     ])
     .split(frame.area());
     
+    let city_name = "Cogealac";
+    let temp: i32 = 12;
+
     render_app_title(frame, chunks[0]);
-    render_weather_info(frame, chunks[1]);
+    render_weather_info(frame, city_name, chunks[1]);
     render_user_input(frame, chunks[2]);
     render_help(frame, chunks[3]);
     // TODO: Split the layout
