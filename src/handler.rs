@@ -1,7 +1,8 @@
 use std::any;
 
-use crate::app::{App, AppResult};
+use crate::{app::{App, AppResult}, connection::get_data};
 use crossterm::event::{self, Event, KeyEvent, KeyEventKind, KeyCode};
+use tokio::task;
 /// Handles the key events and updates the state of [`App`].
 /// 
 pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
@@ -19,7 +20,12 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
         KeyCode::Enter => {
             if(app.selected_city == "".to_string()){
                 app.selected_city = app.user_input.clone();
-                app.user_input = String::from("");
+                //app.user_input = String::from("");
+                let city = app.selected_city.clone();
+
+                let result = task::block_in_place(|| get_data(&city));
+                // Spawn a blocking task to fetch data
+                app.user_input = result;
             }
         }
         KeyCode::Backspace => {

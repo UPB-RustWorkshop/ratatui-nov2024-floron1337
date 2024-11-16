@@ -1,7 +1,7 @@
 use std::{fmt::format, rc::Rc};
 use ratatui::{layout::{Alignment, Constraint, Direction, Layout, Rect}, style::{Color, Style, Stylize}, symbols::line::TOP_RIGHT, text::{Line, Span}, widgets::{block::title, BarChart, Block, BorderType, Borders, Paragraph}, Frame};
 use text_to_ascii_art::to_art;
-use crate::app::App;
+use crate::{app::App, connection::get_data};
 
 fn generate_ascii_art(string: String) -> String{
     match to_art(string.to_string(), "", 1, 1, 1) {
@@ -134,21 +134,12 @@ pub fn render(app: &mut App, frame: &mut Frame) {
     let city_temp: i32 = 12;
     let city_feels_like_temp: i32 = 12;
     let city_weather = "Muing".to_string();
-
+    
     render_app_title(frame, chunks[0]);
     render_weather_info(frame, city_name, city_temp, city_feels_like_temp, city_weather, weather_chunks[0]);
     render_weather_graph(frame, weather_chunks[1]);
     render_user_input(frame, app.user_input.clone(), chunks[2]);
     render_help(frame, chunks[3]);
-    // TODO: Split the layout
-    // let [area1, area2, area3 ...] =
-
-    // TODO: get the list of cities
-    // let cities: Vec<ListItem> =
-    // let list_component =
-
-    // TODO: render the list of cities
-    // frame.render_widget(list_component, area);
 
 
     // TODO: Create the weather info component

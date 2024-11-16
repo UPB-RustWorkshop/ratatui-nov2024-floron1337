@@ -1,11 +1,16 @@
+use std::fs::File;
+use std::process::{Command, Stdio};
 use ratatui_templates::app::{App, AppResult};
 use ratatui_templates::event::{Event, EventHandler};
 use ratatui_templates::handler::handle_key_events;
 use ratatui_templates::tui::Tui;
 use crossterm::event::{self, KeyEvent, KeyEventKind, KeyCode};
-use std::io;
+use tracing::info;
+use tracing_subscriber::EnvFilter;
+use std::io::{self};
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
+
 
 #[tokio::main]
 async fn main() -> AppResult<()> {
@@ -16,6 +21,7 @@ async fn main() -> AppResult<()> {
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(io::stderr());
     let terminal = Terminal::new(backend)?;
+
 
     // TODO:  the terminal user interface
     let handler:EventHandler = EventHandler::new(app.tick_rate);
@@ -37,5 +43,6 @@ async fn main() -> AppResult<()> {
     }
     // TODO: Reset the terminal if the app has been terminated
     tui.exit();
+    info!("app closed");
     Ok(())
 }
