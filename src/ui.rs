@@ -18,7 +18,7 @@ fn render_app_title(frame: &mut Frame, chunk: Rect){
     frame.render_widget(app_title_block, chunk);
 }
 
-fn render_weather_info(frame: &mut Frame, city_name: &String, city_temp: i32, city_feels_like_temp: i32, city_weather: String, chunk: Rect){
+fn render_weather_info(frame: &mut Frame, city_name: &String, city_temp: &i32, city_feels_like_temp: &i32, city_weather: &String, chunk: Rect){
     let chunks = Layout::default()
     .direction(Direction::Vertical)
     .constraints([
@@ -34,7 +34,7 @@ fn render_weather_info(frame: &mut Frame, city_name: &String, city_temp: i32, ci
             .alignment(ratatui::layout::Alignment::Center)
             .block(Block::default().borders(Borders::LEFT | Borders::RIGHT));
     
-    let city_temp_string = if city_temp < 10 { format!("0{}*C", city_temp.to_string())} else { format!("{}*C", city_temp.to_string())};
+    let city_temp_string = if (*city_temp < 10 && *city_temp > 0) { format!("0{}*C", city_temp.to_string())} else { format!("{}*C", city_temp.to_string())};
     let city_temp_block = Paragraph::new(generate_ascii_art(city_temp_string))
         .style(Style::default().fg(Color::White))
         .alignment(ratatui::layout::Alignment::Center)
@@ -45,7 +45,7 @@ fn render_weather_info(frame: &mut Frame, city_name: &String, city_temp: i32, ci
         .alignment(ratatui::layout::Alignment::Center)
         .block(Block::default().borders(Borders::LEFT | Borders::RIGHT));
 
-    let city_weather_block = Paragraph::new("Rain")
+    let city_weather_block = Paragraph::new(format!("{}", city_weather))
         .style(Style::default().fg(Color::White))
         .alignment(ratatui::layout::Alignment::Center)
         .block(Block::default().borders(Borders::LEFT | Borders::RIGHT));
@@ -56,19 +56,44 @@ fn render_weather_info(frame: &mut Frame, city_name: &String, city_temp: i32, ci
     frame.render_widget(city_weather_block, chunks[3]);
 }
 
-fn render_weather_graph(frame: &mut Frame, chunk : Rect){
+fn render_weather_graph(app: &mut App, frame: &mut Frame, chunk : Rect){
+    /* 
     let data = [
-                ("Mon", 5),
-                ("Tue", 3),
-                ("Wed", 8),
-                ("Thu", 2),
-                ("Fri", 6),
-                ("Sat", 7),
-                ("Sun", 4),
-            ];
+                                    ("Mon", 5),
+                                    ("Tue", 3),
+                                    ("Wed", 8),
+                                    ("Thu", 2),
+                                    ("Fri", 6),
+                                    ("Sat", 7),
+                                    ("Sun", 4),
+                                ];
+    */
+    let data: Vec<(&str, f32)> = app.city_info.weather_list
+                .iter()
+                .enumerate()
+                .map(|(index, weather)| {
+                    let day = match index {
+                        0 => "D+0",
+                        1 => "D+1",
+                        2 => "D+2",
+                        3 => "D+3",
+                        4 => "D+4",
+                        5 => "D+5",
+                        6 => "D+6",
+                        _ => "Unknown",
+                    };
+                    (day, weather.temp) // Tuple with day and temperature
+                })
+                .collect();
+
+    let int_data: Vec<(&str, u64)> = data
+        .iter()
+        .map(|(day, value)| (*day, *value as u64)) // Convert f32 to u64
+        .collect();
+
     let barchart = BarChart::default()
         .block(Block::default().title("This Week's Temperatures").borders(Borders::NONE))
-        .data(&data)
+        .data(&int_data)
         .bar_width(5)
         .bar_gap(2)
         .value_style(Style::default().fg(Color::White))
@@ -131,13 +156,15 @@ pub fn render(app: &mut App, frame: &mut Frame) {
                 .split(chunks[1]);
 
     let city_name = &app.selected_city;
-    let city_temp: i32 = 12;
-    let city_feels_like_temp: i32 = 12;
-    let city_weather = "Muing".to_string();
+    let city_temp: i32 = app.city_info.weather_list[0].temp.round() as i32;
+    let city_feels_like_temp: i32 = app.city_info.weather_list[0].feels_like.round() as i32;
+    let city_weather = app.city_info.weather_list[0].weather.clone();
     
     render_app_title(frame, chunks[0]);
-    render_weather_info(frame, city_name, city_temp, city_feels_like_temp, city_weather, weather_chunks[0]);
-    render_weather_graph(frame, weather_chunks[1]);
+    if app.selected_city != "" {
+        render_weather_info(frame, &city_name, &city_temp, &city_feels_like_temp, &city_weather, weather_chunks[0]);
+        render_weather_graph(app, frame, weather_chunks[1]);
+    }
     render_user_input(frame, app.user_input.clone(), chunks[2]);
     render_help(frame, chunks[3]);
 

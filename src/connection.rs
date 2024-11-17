@@ -1,24 +1,22 @@
 use chrono::{DateTime, Local};
 use serde::Deserialize;
 
-
-struct CityInfo {
+#[derive(Debug, Deserialize)]
+pub struct CityInfo {
     // TODO: define elements in the structure
-    name: String,
-    weather_list: Vec<Weather>
+    pub weather_list: Vec<Weather>
 }
 
-struct Weather{
-    temp: f32,
-    feels_like: f32,
-    weather: String
+#[derive(Debug, Deserialize)]
+pub struct Weather{
+    pub temp: f32,
+    pub feels_like: f32,
+    pub weather: String
 }
  
 
 #[derive(Debug, Deserialize)]
 struct WeatherResponse {
-    cod: String,
-    cnt: i32,
     list: Vec<WeatherResponseListElement>,
 }
 
@@ -43,29 +41,41 @@ struct WeatherResponseListElementWeatherElement {
 /// and parsing the response
 ///
 /// Returns weather details about a certain city
-pub fn get_data(city: &String) -> String{
-    let api_url = "https://api.openweathermap.org/data/2.5/forecast?q=bucharest&units=metric&cnt=7&appid=f50a4563082e03e30bca7f5a23ffb481";
-    match reqwest::blocking::get(api_url) {
+pub fn get_data(city: &String) -> Result<CityInfo, String> {
+    let api_url = format!(
+        "https://api.openweathermap.org/data/2.5/forecast?q={}&units=metric&cnt=7&appid=f50a4563082e03e30bca7f5a23ffb481",
+        city
+    );
+
+    match reqwest::blocking::get(&api_url) {
         Ok(response) => {
-            let weather_response = response.json::<WeatherResponse>();
-            let weather_list = weather_response
-                                                                            .unwrap().list.iter()
-                                                                            .map(|forecast|{
-                                                                                Weather{
-                                                                                    temp: forecast.main.temp,
-                                                                                    feels_like: forecast.main.feels_like,
-                                                                                    weather: forecast.weather.first().map_or("Unknown".to_string(), |w| w.main.clone()),
-                                                                                }
-                                                                            })
-                                                                            .collect::<Vec<Weather>>();
-            
-            //TODO: Finish
-            return String::from("");
-            //return weather_response.unwrap().list[0].main.temp.to_string();
-        },
-        Err(error) => {
-            // Handle error
-            return String::from(error.to_string());
+            if response.status().is_success() {
+                match response.json::<WeatherResponse>() {
+                    Ok(weather_response) => {
+                        let weather_list = weather_response
+                            .list
+                            .iter()
+                            .map(|forecast| Weather {
+                                temp: forecast.main.temp,
+                                feels_like: forecast.main.feels_like,
+                                weather: forecast
+                                    .weather
+                                    .first()
+                                    .map_or("Unknown".to_string(), |w| w.main.clone()),
+                            })
+                            .collect::<Vec<Weather>>();
+
+                        Ok(CityInfo { weather_list })
+                    }
+                    Err(_) => Err("Failed to parse the weather data.".to_string()),
+                }
+            } else {
+                Err(format!(
+                    "Failed to fetch data: HTTP {}",
+                    response.status().as_u16()
+                ))
+            }
         }
+        Err(_) => Err("Failed to connect to the API.".to_string()),
     }
 }
