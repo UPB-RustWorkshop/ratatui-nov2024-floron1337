@@ -1,7 +1,5 @@
 use std::error;
-
 use tokio::task;
-
 use crate::connection::{get_data, CityInfo, Weather};
 
 /// Application result type.

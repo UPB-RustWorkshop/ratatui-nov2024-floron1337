@@ -1,7 +1,6 @@
-use std::{fmt::format, rc::Rc};
-use ratatui::{layout::{Alignment, Constraint, Direction, Layout, Rect}, style::{Color, Style, Stylize}, symbols::line::TOP_RIGHT, text::{Line, Span}, widgets::{block::title, BarChart, Block, BorderType, Borders, Paragraph}, Frame};
+use ratatui::{layout::{Constraint, Direction, Layout, Rect}, style::{Color, Style}, widgets::{BarChart, Block, Borders, Paragraph}, Frame};
 use text_to_ascii_art::to_art;
-use crate::{app::App, connection::get_data};
+use crate::{app::App};
 
 fn generate_ascii_art(string: String) -> String{
     match to_art(string.to_string(), "", 1, 1, 1) {
@@ -57,17 +56,6 @@ fn render_weather_info(frame: &mut Frame, city_name: &String, city_temp: &i32, c
 }
 
 fn render_weather_graph(app: &mut App, frame: &mut Frame, chunk : Rect){
-    /* 
-    let data = [
-                                    ("Mon", 5),
-                                    ("Tue", 3),
-                                    ("Wed", 8),
-                                    ("Thu", 2),
-                                    ("Fri", 6),
-                                    ("Sat", 7),
-                                    ("Sun", 4),
-                                ];
-    */
     let data: Vec<(&str, f32)> = app.city_info.weather_list
                 .iter()
                 .enumerate()
@@ -167,13 +155,4 @@ pub fn render(app: &mut App, frame: &mut Frame) {
     }
     render_user_input(frame, app.user_input.clone(), chunks[2]);
     render_help(frame, chunks[3]);
-
-
-    // TODO: Create the weather info component
-    // let weather_info =
-
-    // TODO: Render the weather info component
-    // frame.render_widget(weather_info, area);
-
-
 }

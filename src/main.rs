@@ -1,19 +1,17 @@
-use std::fs::File;
-use std::process::{Command, Stdio};
 use ratatui_templates::app::{App, AppResult};
-use ratatui_templates::event::{Event, EventHandler};
+use ratatui_templates::event::{EventHandler};
 use ratatui_templates::handler::handle_key_events;
 use ratatui_templates::tui::Tui;
-use crossterm::event::{self, KeyEvent, KeyEventKind, KeyCode};
-use tracing::info;
-use tracing_subscriber::EnvFilter;
+use crossterm::event::{self};
 use std::io::{self};
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
-
+use dotenv::dotenv;
 
 #[tokio::main]
 async fn main() -> AppResult<()> {
+    dotenv().ok();
+    
     // Create an application.
     const APP_TICK_RATE: u64 = 200;
     let mut app: App = App::new(APP_TICK_RATE);
@@ -43,6 +41,5 @@ async fn main() -> AppResult<()> {
     }
     // TODO: Reset the terminal if the app has been terminated
     tui.exit();
-    info!("app closed");
     Ok(())
 }

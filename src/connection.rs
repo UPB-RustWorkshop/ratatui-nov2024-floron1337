@@ -1,9 +1,7 @@
-use chrono::{DateTime, Local};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct CityInfo {
-    // TODO: define elements in the structure
     pub weather_list: Vec<Weather>
 }
 
@@ -14,7 +12,6 @@ pub struct Weather{
     pub weather: String
 }
  
-
 #[derive(Debug, Deserialize)]
 struct WeatherResponse {
     list: Vec<WeatherResponseListElement>,
@@ -42,9 +39,12 @@ struct WeatherResponseListElementWeatherElement {
 ///
 /// Returns weather details about a certain city
 pub fn get_data(city: &String) -> Result<CityInfo, String> {
+    let openweather_api_token = std::env::var("OPENWEATHER_API_KEY").expect("OPENWEATHER_API_KEY must be set.");
+    
     let api_url = format!(
-        "https://api.openweathermap.org/data/2.5/forecast?q={}&units=metric&cnt=7&appid=f50a4563082e03e30bca7f5a23ffb481",
-        city
+        "https://api.openweathermap.org/data/2.5/forecast?q={}&units=metric&cnt=7&appid={}",
+        city,
+        openweather_api_token
     );
 
     match reqwest::blocking::get(&api_url) {
